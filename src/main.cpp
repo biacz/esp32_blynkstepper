@@ -16,54 +16,24 @@ char pass[] = "Key01@BM";
 WiFiServer server(80);
 
 #include <SPI.h>
+#include <Stepper.h>
 
-#define BUTTON1 35
-#define BUTTON2 0
+Stepper myStepper(stepsPerRevolution, 27, 26, 25, 33);
 
-#define STEPPER_IN1 27
-#define STEPPER_IN2 26
-#define STEPPER_IN3 25
-#define STEPPER_IN4 33
+const int stepsPerRevolution = 2038;
+int stepCount = 0;
+int val;
+int absl;
 
-#define REVOLUTION_STEP 2048 // 1 revolution
-
-boolean stepperDirection = false;
-int stepperStep = 0;
-int stepperStepCount = 0;
-boolean stepperMove = false;
-long prevMillisStepper = 0;
-int intervalStepper = 4; // Minimum is 2
-
-boolean button1Pressed = false;
-boolean button2Pressed = false;
-
-BLYNK_WRITE(V0) // Button Widget is writing to pin V0
-{
-  stepperDirection = param.asInt();
+BLYNK_WRITE(V1) {
+  int pinValue = param.asInt();
+  val = pinValue;
+  absl = abs(val);
+  Serial.print("absl: ");
+  Serial.println(absl);
 }
 
-BLYNK_WRITE(V1) // Button Widget is writing to pin V1
-{
-  int stepperSpeed = param.asInt();
-}
-
-BLYNK_WRITE(V2) // Button Widget is writing to pin V2
-{
-  stepperMove = true;
-  stepperStepCount = 0;
-  stepperStep = 1;
-}
-
-void setup()
-{
-  pinMode(BUTTON1, INPUT_PULLUP);
-  pinMode(BUTTON2, INPUT_PULLUP);
-
-  pinMode(STEPPER_IN1, OUTPUT);
-  pinMode(STEPPER_IN2, OUTPUT);
-  pinMode(STEPPER_IN3, OUTPUT);
-  pinMode(STEPPER_IN4, OUTPUT);
-
+void setup() {
   Serial.begin(115200);
   Serial.print("Initialize Blynk.");
 
@@ -80,94 +50,13 @@ void setup()
   Serial.println(WiFi.localIP());
 
   Blynk.begin(auth, ssid, pass);
-
-  Blynk.virtualWrite(0, 0);
-  Blynk.virtualWrite(1, 1);
-  Blynk.virtualWrite(2, 0);
 }
 
-void loop()
-{
+void loop() {
   Blynk.run();
-
-  if (digitalRead(BUTTON1) == LOW && button1Pressed == false) {
-    button1Pressed = true;
-    stepperDirection = false;
-    stepperMove = true;
-    stepperStepCount = 0;
-    stepperStep = 1;
-  }
-  else if (digitalRead(BUTTON1) == HIGH && button1Pressed == true) {
-    button1Pressed = false;
-  }
-
-  if (digitalRead(BUTTON2) == LOW) {
-    stepperDirection = true;
-    stepperMove = true;
-    stepperStepCount = 0;
-    stepperStep = 1;
-  }
-  else if (digitalRead(BUTTON2) == HIGH && button2Pressed == true) {
-    button2Pressed = false;
-  }
-
-  if (millis() - prevMillisStepper > intervalStepper) {
-    if (stepperMove == true) {
-      if (stepperDirection) {
-        if (stepperStep++ >= 3) {
-          stepperStep = 0;
-        }
-      }
-      else {
-        if (stepperStep-- == 0) {
-          stepperStep = 3;
-        }
-      }
-
-      if (stepperStepCount++ == REVOLUTION_STEP) {
-        stepperMove = false;
-        stepperStep = 4;
-
-        Blynk.virtualWrite(2, 0);
-      }
-
-      switch (stepperStep) {
-      case 0:
-        digitalWrite(STEPPER_IN1, HIGH);
-        digitalWrite(STEPPER_IN2, LOW);
-        digitalWrite(STEPPER_IN3, LOW);
-        digitalWrite(STEPPER_IN4, LOW);
-        break;
-
-      case 1:
-        digitalWrite(STEPPER_IN1, LOW);
-        digitalWrite(STEPPER_IN2, HIGH);
-        digitalWrite(STEPPER_IN3, LOW);
-        digitalWrite(STEPPER_IN4, LOW);
-        break;
-
-      case 2:
-        digitalWrite(STEPPER_IN1, LOW);
-        digitalWrite(STEPPER_IN2, LOW);
-        digitalWrite(STEPPER_IN3, HIGH);
-        digitalWrite(STEPPER_IN4, LOW);
-        break;
-
-      case 3:
-        digitalWrite(STEPPER_IN1, LOW);
-        digitalWrite(STEPPER_IN2, LOW);
-        digitalWrite(STEPPER_IN3, LOW);
-        digitalWrite(STEPPER_IN4, HIGH);
-        break;
-
-      default:
-        digitalWrite(STEPPER_IN1, LOW);
-        digitalWrite(STEPPER_IN2, LOW);
-        digitalWrite(STEPPER_IN3, LOW);
-        digitalWrite(STEPPER_IN4, LOW);
-        break;
-      }
-    }
-    prevMillisStepper = millis();
+  int motorSpeed = map(absl, 0, 1023, 0, 100);
+    if (motorSpeed > 0) {
+    myStepper.setSpeed(motorSpeed);
+    myStepper.step(((stepsPerRevolution*val)/absl) / 100);
   }
 }
