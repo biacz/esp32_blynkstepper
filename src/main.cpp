@@ -18,11 +18,11 @@ WiFiServer server(80);
 #include <SPI.h>
 #include <Stepper.h>
 
-Stepper myStepper(stepsPerRevolution, 27, 26, 25, 33);
-
-const int stepsPerRevolution = 2038;
+const int stepsPerRevolution = 238;
 int stepCount = 0;
 int val, absl, powerValue;
+
+Stepper myStepper(stepsPerRevolution, 27, 26, 25, 33);
 
 BLYNK_WRITE(V1)
 {
