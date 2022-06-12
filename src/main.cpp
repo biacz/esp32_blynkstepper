@@ -22,18 +22,25 @@ Stepper myStepper(stepsPerRevolution, 27, 26, 25, 33);
 
 const int stepsPerRevolution = 2038;
 int stepCount = 0;
-int val;
-int absl;
+int val, absl, powerValue;
 
-BLYNK_WRITE(V1) {
-  int pinValue = param.asInt();
-  val = pinValue;
-  absl = abs(val);
+BLYNK_WRITE(V1)
+{
+  int speedValue = param.asInt();
+  absl = abs(speedValue);
   Serial.print("absl: ");
   Serial.println(absl);
 }
 
-void setup() {
+BLYNK_WRITE(V2)
+{
+  int powerValue = param.asInt();
+  Serial.print("power: ");
+  Serial.println(powerValue);
+}
+
+void setup()
+{
   Serial.begin(115200);
   Serial.print("Initialize Blynk.");
 
@@ -52,11 +59,20 @@ void setup() {
   Blynk.begin(auth, ssid, pass);
 }
 
-void loop() {
+void loop()
+{
   Blynk.run();
-  int motorSpeed = map(absl, 0, 1023, 0, 100);
-    if (motorSpeed > 0) {
-    myStepper.setSpeed(motorSpeed);
-    myStepper.step(((stepsPerRevolution*val)/absl) / 100);
+  if (powerValue == 1)
+  {
+    int motorSpeed = map(absl, 0, 1023, 0, 100);
+    if (motorSpeed > 0)
+    {
+      myStepper.setSpeed(motorSpeed);
+      myStepper.step(((stepsPerRevolution * val) / absl) / 100);
+    }
+  }
+  else
+  {
+    myStepper.setSpeed(0);
   }
 }
