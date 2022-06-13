@@ -1,3 +1,18 @@
+/*************************************************************
+
+  You’ll need:
+   - Blynk IoT app (download from App Store or Google Play)
+   - ESP32 board
+   - Decide how to connect to Blynk
+     (USB, Ethernet, Wi-Fi, Bluetooth, ...)
+
+  There is a bunch of great example sketches included to show you how to get
+  started. Think of them as LEGO bricks  and combine them as you wish.
+  For example, take the Ethernet Shield sketch and combine it with the
+  Servo example, or choose a USB sketch and add a code from SendData
+  example.
+ *************************************************************/
+
 #define BLYNK_TEMPLATE_ID "TMPLlDbEstbF"
 #define BLYNK_DEVICE_NAME "Quickstart Device"
 #define BLYNK_AUTH_TOKEN "H5-K9DRtM5Bt_R4MVUSuQp3V-dsoTLiZ"
@@ -18,61 +33,40 @@ WiFiServer server(80);
 #include <SPI.h>
 #include <Stepper.h>
 
-const int stepsPerRevolution = 238;
+const int stepsPerRevolution = 200;
 int stepCount = 0;
-int val, absl, powerValue;
+int blynkSpeed, motorSpeed, blynkPower;
 
 Stepper myStepper(stepsPerRevolution, 27, 26, 25, 33);
-
-BLYNK_WRITE(V1)
-{
-  int speedValue = param.asInt();
-  absl = abs(speedValue);
-  Serial.print("absl: ");
-  Serial.println(absl);
-}
-
-BLYNK_WRITE(V2)
-{
-  int powerValue = param.asInt();
-  Serial.print("power: ");
-  Serial.println(powerValue);
-}
 
 void setup()
 {
   Serial.begin(115200);
-  Serial.print("Initialize Blynk.");
-
-  WiFi.begin(ssid, pass);
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.print(".");
-  }
-
-  Serial.println("");
-  Serial.println("WiFi connected.");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
 
   Blynk.begin(auth, ssid, pass);
+}
+
+BLYNK_WRITE(V1)
+{
+  int blynkSpeed = param.asInt();
+  Serial.print("Speed Value: ");
+  Serial.println(blynkSpeed);
+}
+
+BLYNK_WRITE(V2)
+{
+  int blynkPower = param.asInt();
+  Serial.print("Power Value: ");
+  Serial.println(blynkPower);
 }
 
 void loop()
 {
   Blynk.run();
-  if (powerValue == 1)
-  {
-    int motorSpeed = map(absl, 0, 1023, 0, 100);
-    if (motorSpeed > 0)
-    {
-      myStepper.setSpeed(motorSpeed);
-      myStepper.step(((stepsPerRevolution * val) / absl) / 100);
-    }
-  }
-  else
-  {
-    myStepper.setSpeed(0);
+  // set the motor speed:
+  if (blynkSpeed > 0) {
+    myStepper.setSpeed(blynkSpeed);
+    // step 1/100 of a revolution:
+    myStepper.step(stepsPerRevolution / 100);
   }
 }
