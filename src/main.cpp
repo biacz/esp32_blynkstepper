@@ -1,8 +1,16 @@
 #include "Settings.h"
-
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <BlynkSimpleEsp32.h>
+
+/* Die alle in der Settings.h definieren 
+#define BLYNK_TEMPLATE_ID ""
+#define BLYNK_DEVICE_NAME ""
+#define BLYNK_AUTH_TOKEN ""
+char auth[] = BLYNK_AUTH_TOKEN;
+char ssid[] = "";
+char pass[] = "";
+*/
 
 WiFiServer server(80);
 
