@@ -1,32 +1,8 @@
-/*************************************************************
-
-  You’ll need:
-   - Blynk IoT app (download from App Store or Google Play)
-   - ESP32 board
-   - Decide how to connect to Blynk
-     (USB, Ethernet, Wi-Fi, Bluetooth, ...)
-
-  There is a bunch of great example sketches included to show you how to get
-  started. Think of them as LEGO bricks  and combine them as you wish.
-  For example, take the Ethernet Shield sketch and combine it with the
-  Servo example, or choose a USB sketch and add a code from SendData
-  example.
- *************************************************************/
-
-#define BLYNK_TEMPLATE_ID "TMPLlDbEstbF"
-#define BLYNK_DEVICE_NAME "Quickstart Device"
-#define BLYNK_AUTH_TOKEN "H5-K9DRtM5Bt_R4MVUSuQp3V-dsoTLiZ"
+#include "Settings.h"
 
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <BlynkSimpleEsp32.h>
-
-char auth[] = BLYNK_AUTH_TOKEN;
-
-// Your WiFi credentials.
-// Set password to "" for open networks.
-char ssid[] = "Drueck mich!";
-char pass[] = "Key01@BM";
 
 WiFiServer server(80);
 
